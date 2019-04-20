@@ -1,0 +1,5 @@
+#!/bin/sh
+
+
+#clang-7 -o test test.c -O2 -m32 -Wl,-s -L./../lib -I./../include -ljxa
+clang-7 -o test test.c -O2 -m32 ./../lib/libjxa.a -I./../include

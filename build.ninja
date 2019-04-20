@@ -1,0 +1,63 @@
+root = .
+builddir = lib
+staticdir = o/static
+shareddir = o/shared
+
+jxa_cc = clang-8
+jxa_ar = llvm-ar-8
+jxa_ld = ld.lld-8
+cflags = -O2 -m32 -march=i386
+ldflags = -s
+includes = -I./include
+
+
+rule jxa_cc_static
+    command = $jxa_cc -MMD -MF $out.d $cflags $includes -c $in -o $out
+    description = [CC] $jxa_cc $cflags $includes -c $in -o $out
+    depfile = $out.d
+
+rule jxa_cc_shared
+    command = $jxa_cc -MMD -MF $out.d $cflags $includes -fPIC -c $in -o $out
+    description = [CC] $jxa_cc $cflags $includes -fPIC -c $in -o $out
+    depfile = $out.d
+
+rule jxa_ar
+    command = $jxa_ar crs $out $in
+    description = [AR] $jxa_ar crs $out $in
+
+rule jxa_ld
+    command = $jxa_ld -shared $ldflags -o $out $in
+    description = [LINK] $jxa_ld -shared $ldflags -o $out $in
+
+
+
+build $builddir/libjxa.a: jxa_ar $staticdir/jxa.o $staticdir/json_parse.o $
+    $staticdir/json_interface.o $staticdir/json_find.o $
+    $staticdir/json_free.o $staticdir/json_print.o
+
+build $staticdir/jxa.o: jxa_cc_static $root/src/jxa.c
+build $staticdir/json_parse.o: jxa_cc_static $root/src/json_parse.c
+build $staticdir/json_interface.o: jxa_cc_static $root/src/json_interface.c
+build $staticdir/json_find.o: jxa_cc_static $root/src/json_find.c
+build $staticdir/json_free.o: jxa_cc_static $root/src/json_free.c
+build $staticdir/json_print.o: jxa_cc_static $root/src/json_print.c
+
+
+
+build $builddir/libjxa.so: jxa_ld $shareddir/jxa.o $shareddir/json_parse.o $
+    $shareddir/json_interface.o $shareddir/json_find.o $
+    $shareddir/json_free.o $shareddir/json_print.o
+
+build $shareddir/jxa.o: jxa_cc_shared $root/src/jxa.c
+build $shareddir/json_parse.o: jxa_cc_shared $root/src/json_parse.c
+build $shareddir/json_interface.o: jxa_cc_shared $root/src/json_interface.c
+build $shareddir/json_find.o: jxa_cc_shared $root/src/json_find.c
+build $shareddir/json_free.o: jxa_cc_shared $root/src/json_free.c
+build $shareddir/json_print.o: jxa_cc_shared $root/src/json_print.c
+
+
+build static: phony | $builddir/libjxa.a
+build shared: phony | $builddir/libjxa.so
+build libjxa: phony | static shared
+
+default libjxa

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+
+# clang-7 -c number.c -o number_clang.o
+# clang-7 -c number.c -o number_clang_O2.o -O2
+# gcc-8 -c number.c -o number_gcc.o
+# gcc-8 -c number.c -o number_gcc_O2.o -O2
+
+clang-7 -o number_clang number.c -O2
+gcc-8 -o number_gcc number.c -O2
